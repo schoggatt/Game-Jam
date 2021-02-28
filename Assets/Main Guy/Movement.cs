@@ -19,17 +19,39 @@ public class Movement : MonoBehaviour
     float horizontalMove = 0f;
     #endregion
 
+    private Vector3 lastPosition = Vector3.zero;
+    private double speed;
+
     private void Start()
     {
+        speed = 0;
         CamTransform = Camera.main.transform; // Attach cam
     }
 
     void Update()
     {
         var direction = Input.GetAxisRaw("Horizontal");
-        animator.SetFloat("RunningSpeed", direction);
-        animator.SetFloat("IsRunning", Mathf.Abs(direction));
+        if(speed != 0)
+        {
+            animator.SetBool("IsRunning", true);
+        }
+        else
+        {
+            animator.SetBool("IsRunning", false); 
+        }
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            //animator.SetTrigger("Jump");
+            jump = true;
+        }
         horizontalMove = direction * runSpeed;
+
+
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     /// <summary>
@@ -40,6 +62,8 @@ public class Movement : MonoBehaviour
         controller.Move(horizontalMove * Time.fixedDeltaTime, false, jump);
         CamTransform.position = new Vector3(PlayerTransform.position.x, CamTransform.position.y, CamTransform.position.z);
 
+        speed = (transform.position - lastPosition).magnitude;
+        lastPosition = transform.position;
 
         jump = false;
     }
